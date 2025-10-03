@@ -1,12 +1,10 @@
 // src/Routes.jsx
 import { Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/home/Home";
 import Information from "./pages/Information/Information";
-
-// const Home = lazy(() => import("./pages/Home.tsx"));
-// const Forms = lazy(() => import("./pages/Forms"));
-// const Aboute = lazy(() => import("./pages/Aboute"));
+import Manager from "./pages/Information/Manager";
+import Address from "./pages/Information/Address";
 
 function Loading() {
   return <div>Loading...</div>;
@@ -19,6 +17,8 @@ export default function AppRoutes() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/information" element={<Information />} />
+          <Route path="/information/manager" element={<Manager />} />
+          <Route path="/information/address" element={<Address />} />
           {/* <Route path="/aboute" element={<Aboute />} /> */}
 
           {/* <Route path="/index.html" element={<Navigate to="/" replace />} /> */}
