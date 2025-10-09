@@ -5,6 +5,7 @@ import Home from "./pages/home/Home";
 import Information from "./pages/Information/Information";
 import Manager from "./pages/Information/Manager";
 import Address from "./pages/Information/Address";
+import Location from "./pages/Information/Location";
 
 function Loading() {
   return <div>Loading...</div>;
@@ -19,6 +20,7 @@ export default function AppRoutes() {
           <Route path="/information" element={<Information />} />
           <Route path="/information/manager" element={<Manager />} />
           <Route path="/information/address" element={<Address />} />
+          <Route path="/information/location" element={<Location />} />
           {/* <Route path="/aboute" element={<Aboute />} /> */}
 
           {/* <Route path="/index.html" element={<Navigate to="/" replace />} /> */}

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Container from "../../shared/components/ContainerComponent";
 import HeaderComponent from "../../shared/components/HeaderComponent";
+import { useProjectStore } from "../../store/store";
 
 interface AddressData {
   province: number;
@@ -13,22 +14,82 @@ interface AddressData {
   alley: string;
   flat: string;
   fullAddress: string;
+  postalCode: string;
 }
 
 const Address = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState<AddressData>({
-    province: 1,
-    city: 1,
-    neighborhood: 1,
-    mainStreet: "",
-    street: "",
-    alley: "",
-    flat: "",
-    fullAddress: "",
-  });
+  const setAddress = useProjectStore((state) => state.setAddress);
+  const addressData = useProjectStore((state) => state.address);
 
+  const [form, setForm] = useState<AddressData>(addressData);
+  const [isFullAddressAuto, setIsFullAddressAuto] = useState(true);
   const [errors, setErrors] = useState<Partial<AddressData>>({});
+
+  // تابع برای ساخت آدرس خودکار
+  const generateFullAddress = (currentForm: AddressData): string => {
+    const parts = [];
+
+    // نام استان و شهر بر اساس value
+    const provinceNames: { [key: number]: string } = {
+      1: "تهران",
+      2: "البرز",
+      3: "اصفهان",
+    };
+
+    const cityNames: { [key: number]: string } = {
+      1: "تهران",
+      2: "کرج",
+      3: "اسلامشهر",
+    };
+
+    const neighborhoodNames: { [key: number]: string } = {
+      1: "سعادت آباد",
+      2: "شهرک غرب",
+      3: "پونک",
+    };
+
+    if (provinceNames[currentForm.province]) {
+      parts.push(`استان ${provinceNames[currentForm.province]}`);
+    }
+    if (cityNames[currentForm.city]) {
+      parts.push(`شهر ${cityNames[currentForm.city]}`);
+    }
+    if (neighborhoodNames[currentForm.neighborhood]) {
+      parts.push(`محله ${neighborhoodNames[currentForm.neighborhood]}`);
+    }
+    if (currentForm.mainStreet) {
+      parts.push(`خیابان ${currentForm.mainStreet}`);
+    }
+    if (currentForm.street) {
+      parts.push(`کوچه ${currentForm.street}`);
+    }
+    if (currentForm.alley) {
+      parts.push(`بن بست ${currentForm.alley}`);
+    }
+    if (currentForm.flat) {
+      parts.push(`پلاک ${currentForm.flat}`);
+    }
+
+    return parts.join("، ");
+  };
+
+  // وقتی سایر فیلدها تغییر می‌کنند، آدرس کامل را آپدیت کن
+  useEffect(() => {
+    if (isFullAddressAuto) {
+      const autoAddress = generateFullAddress(form);
+      setForm((prev) => ({ ...prev, fullAddress: autoAddress }));
+    }
+  }, [
+    form.province,
+    form.city,
+    form.neighborhood,
+    form.mainStreet,
+    form.street,
+    form.alley,
+    form.flat,
+    isFullAddressAuto,
+  ]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -44,6 +105,12 @@ const Address = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
+  const handleFullAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setForm({ ...form, fullAddress: value });
+    setIsFullAddressAuto(false); // وقتی کاربر دستی تغییر داد، auto را غیرفعال کن
+  };
+
   const handleSubmit = () => {
     const newErrors: Partial<AddressData> = {};
 
@@ -52,18 +119,20 @@ const Address = () => {
     if (!form.street.trim()) newErrors.street = "خیابان الزامی است";
     if (!form.fullAddress.trim())
       newErrors.fullAddress = "آدرس کامل الزامی است";
+    if (!form.postalCode.trim()) newErrors.postalCode = "کد پستی الزامی است";
+    else if (form.postalCode.length !== 10)
+      newErrors.postalCode = "کد پستی باید ۱۰ رقم باشد";
 
     setErrors(newErrors);
 
     const hasError = Object.values(newErrors).some((err) => err !== "");
     if (hasError) return;
 
-    // ذخیره در localStorage یا ارسال به API
-    console.log("آدرس ذخیره شد:", form);
+    // ذخیره در store
+    setAddress(form);
     alert("آدرس با موفقیت ذخیره شد!");
 
-    // رفتن به صفحه بعدی
-    // navigate("/next-step");
+    navigate("/information/location");
   };
 
   return (
@@ -84,8 +153,8 @@ const Address = () => {
             onChange={handleChange}
           >
             <option value={1}>تهران</option>
-            <option value={2}>البرز</option>
-            <option value={3}>اصفهان</option>
+            {/* <option value={2}>البرز</option>
+            <option value={3}>اصفهان</option> */}
           </select>
         </div>
 
@@ -102,8 +171,8 @@ const Address = () => {
             onChange={handleChange}
           >
             <option value={1}>تهران</option>
-            <option value={2}>کرج</option>
-            <option value={3}>اسلامشهر</option>
+            {/* <option value={2}>کرج</option> */}
+            {/* <option value={3}>اسلامشهر</option> */}
           </select>
         </div>
 
@@ -120,8 +189,8 @@ const Address = () => {
             onChange={handleChange}
           >
             <option value={1}>سعادت آباد</option>
-            <option value={2}>شهرک غرب</option>
-            <option value={3}>پونک</option>
+            {/* <option value={2}>شهرک غرب</option>
+            <option value={3}>پونک</option> */}
           </select>
         </div>
 
@@ -195,11 +264,46 @@ const Address = () => {
           />
         </div>
 
-        {/* Full Address */}
+        {/* Postal Code */}
         <div className="flex flex-col space-y-1">
-          <label htmlFor="fullAddress" className="font-medium text-gray-700">
-            آدرس کامل
+          <label htmlFor="postalCode" className="font-medium text-gray-700">
+            کد پستی
           </label>
+          <input
+            id="postalCode"
+            className={`border p-2 rounded w-full ${
+              errors.postalCode ? "border-red-500" : ""
+            }`}
+            placeholder="1234567890"
+            name="postalCode"
+            value={form.postalCode}
+            onChange={handleChange}
+            maxLength={10}
+          />
+          {errors.postalCode && (
+            <span className="text-sm text-red-500">{errors.postalCode}</span>
+          )}
+        </div>
+
+        {/* Full Address */}
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <label htmlFor="fullAddress" className="font-medium text-gray-700">
+              آدرس کامل
+            </label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="autoAddress"
+                checked={isFullAddressAuto}
+                onChange={(e) => setIsFullAddressAuto(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <label htmlFor="autoAddress" className="text-sm text-gray-600">
+                تولید خودکار آدرس
+              </label>
+            </div>
+          </div>
           <input
             id="fullAddress"
             className={`border p-2 rounded w-full ${
@@ -208,14 +312,25 @@ const Address = () => {
             placeholder="آدرس کامل برای پیک"
             name="fullAddress"
             value={form.fullAddress}
-            onChange={handleChange}
+            onChange={handleFullAddressChange}
           />
           {errors.fullAddress && (
             <span className="text-sm text-red-500">{errors.fullAddress}</span>
           )}
+          {isFullAddressAuto && (
+            <span className="text-xs text-gray-500">
+              آدرس به صورت خودکار از فیلدهای بالا تولید می‌شود
+            </span>
+          )}
         </div>
 
         <div className="flex space-x-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+          >
+            بازگشت
+          </button>
           <button
             onClick={handleSubmit}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"

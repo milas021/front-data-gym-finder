@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -48,6 +49,11 @@ button:focus-visible {
 input,
 select {
   color: black;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
 }
 
 @media (prefers-color-scheme: light) {
