@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker build -t gym-finder .",
+    "docker:run": "docker run -p 3000:3000 gym-finder",
+    "docker:compose": "docker-compose up",
+    "docker:compose:build": "docker-compose up --build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
