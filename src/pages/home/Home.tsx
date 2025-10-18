@@ -8,12 +8,10 @@ import LoadingComponent from "../../shared/components/LoadingComponent";
 interface Branch {
   id: string;
   name: string;
-  description: string;
+  complitedData: boolean;
   phone: string;
   area: number;
-  address: {
-    fullAddress: string;
-  };
+  address: string;
 }
 
 const Home = () => {
@@ -65,12 +63,12 @@ const Home = () => {
     <Container>
       <HeaderComponent title="باشگاه‌های من" />
 
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 ">
         {/* دکمه ثبت باشگاه جدید */}
         <div className="bg-white rounded-lg shadow-sm border p-4">
           <button
             onClick={onclick}
-            className="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-200 font-medium"
+            className="w-full !bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-200 font-medium"
           >
             🏋️ ثبت باشگاه جدید
           </button>
@@ -126,15 +124,20 @@ const Home = () => {
               {branches.map((branch) => (
                 <div
                   key={branch.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                  className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200 flex flex-col justify-between ${
+                    branch.complitedData
+                      ? " border-2 !border-green-500"
+                      : "border-2 !border-yellow-500"
+                  }`}
                 >
-                  <h3 className="font-bold text-gray-800 text-lg mb-2">
+                  <div
+                    className={` rounded-full flex justify-center items-center`}
+                  >
+                    {branch.complitedData ? null : "⚠️"}
+                  </div>
+                  <h3 className="font-bold text-center text-gray-800 text-lg mb-2">
                     {branch.name}
                   </h3>
-
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {branch.description}
-                  </p>
 
                   <div className="space-y-2 text-sm text-gray-500">
                     <div className="flex items-center">
@@ -147,12 +150,10 @@ const Home = () => {
                       <span>مساحت: {branch.area} متر</span>
                     </div>
 
-                    {branch.address?.fullAddress && (
+                    {branch.address && (
                       <div className="flex items-start">
                         <span className="ml-2 mt-1">📍</span>
-                        <span className="text-xs">
-                          {branch.address.fullAddress}
-                        </span>
+                        <span className="text-xs">{branch.address}</span>
                       </div>
                     )}
                   </div>
