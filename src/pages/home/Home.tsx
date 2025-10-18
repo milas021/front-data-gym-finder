@@ -31,13 +31,14 @@ const Home = () => {
       setLoading(true);
       setError(null);
 
-      const response = await axios.get("http://api.milicode.ir/api/Branch", {
+      const response = await axios.get("https://api.milicode.ir/api/Branch", {
         timeout: 10000,
       });
 
       console.log("✅ لیست باشگاه‌ها:", response.data);
       setBranches(response.data);
     } catch (error: any) {
+      console.log("error", error);
       console.error("❌ خطا در دریافت لیست باشگاه‌ها:", error);
 
       if (error.response) {
