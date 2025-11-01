@@ -6,6 +6,8 @@ import Information from "./pages/Information/Information";
 import Manager from "./pages/Information/Manager";
 import Address from "./pages/Information/Address";
 import Location from "./pages/Information/Location";
+import BranchDetails from "./pages/branch/BranchDetails";
+import CompleteInformation from "./pages/branch/CompleteInformation";
 
 function Loading() {
   return <div>Loading...</div>;
@@ -21,6 +23,11 @@ export default function AppRoutes() {
           <Route path="/information/manager" element={<Manager />} />
           <Route path="/information/address" element={<Address />} />
           <Route path="/information/location" element={<Location />} />
+          <Route path="/branch/:id" element={<BranchDetails />} />
+          <Route
+            path="/branch/:id/complete"
+            element={<CompleteInformation />}
+          />
           {/* <Route path="/aboute" element={<Aboute />} /> */}
 
           {/* <Route path="/index.html" element={<Navigate to="/" replace />} /> */}

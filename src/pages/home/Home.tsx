@@ -120,7 +120,7 @@ const Home = () => {
 
           {/* نمایش لیست باشگاه‌ها */}
           {!loading && !error && branches.length > 0 && (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 ">
               {branches.map((branch) => (
                 <div
                   key={branch.id}
@@ -158,7 +158,10 @@ const Home = () => {
                     )}
                   </div>
 
-                  <button className="w-full mt-4 bg-gray-100 text-gray-700 py-2 rounded hover:bg-gray-200 transition text-sm">
+                  <button
+                    onClick={() => navigate(`/branch/${branch.id}`)}
+                    className="w-full mt-4 bg-gray-100 text-gray-700 py-2 rounded hover:bg-gray-200 transition text-sm"
+                  >
                     مشاهده جزئیات
                   </button>
                 </div>
