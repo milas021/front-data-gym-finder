@@ -327,13 +327,13 @@ const Address = () => {
         <div className="flex space-x-4">
           <button
             onClick={() => navigate(-1)}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+            className="!bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
           >
             بازگشت
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+            className="!bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
           >
             ذخیره و ادامه
           </button>

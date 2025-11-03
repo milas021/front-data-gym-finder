@@ -100,7 +100,7 @@ const Home = () => {
               <p className="text-red-600 mb-4">{error}</p>
               <button
                 onClick={handleRefresh}
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                className="!bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
               >
                 تلاش مجدد
               </button>
@@ -160,7 +160,7 @@ const Home = () => {
 
                   <button
                     onClick={() => navigate(`/branch/${branch.id}`)}
-                    className="w-full mt-4 bg-gray-100 text-gray-700 py-2 rounded hover:bg-gray-200 transition text-sm"
+                    className="w-full mt-4 !bg-gray-100 text-gray-700 py-2 rounded hover:bg-gray-200 transition text-sm"
                   >
                     مشاهده جزئیات
                   </button>

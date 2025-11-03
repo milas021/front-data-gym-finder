@@ -241,7 +241,7 @@ const Information = () => {
 
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 w-full text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          className="!bg-blue-500 w-full text-white px-4 py-2 rounded hover:bg-blue-600 transition"
         >
           ذخیره و ادامه
         </button>
@@ -250,7 +250,7 @@ const Information = () => {
       <div className="flex px-4 mt-auto">
         <button
           onClick={onclickBack}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          className="!bg-gray-100 text-gray-500 px-4 py-2 rounded hover:bg-blue-600 transition"
         >
           صفحه اصلی
         </button>

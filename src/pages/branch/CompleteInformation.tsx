@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Container from "../../shared/components/ContainerComponent";
 import HeaderComponent from "../../shared/components/HeaderComponent";
+import LoadingComponent from "../../shared/components/LoadingComponent";
 
 const CompleteInformation = () => {
   const navigate = useNavigate();
@@ -35,21 +36,28 @@ const CompleteInformation = () => {
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [facilitiesError, setFacilitiesError] = useState<string | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const handleToggle = (key: keyof Omit<FacilitiesPayload, "branchId">) => {
     setForm((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async () => {
     if (!branchIdParam) {
-      setError("شناسه باشگاه نامعتبر است");
+      setFacilitiesError("شناسه باشگاه نامعتبر است");
       return;
     }
     setSubmitting(true);
-    setError(null);
-    setSuccess(null);
+    setFacilitiesError(null);
+    setMediaError(null);
+    setMessage(null);
     try {
       const url = `https://api.milicode.ir/api/Branch/${branchIdParam}/facilities`;
       const payload: FacilitiesPayload = {
@@ -57,14 +65,47 @@ const CompleteInformation = () => {
         branchId: form.branchId || branchIdParam,
       };
       await axios.put(url, payload, { timeout: 15000 });
-      setSuccess("اطلاعات با موفقیت ذخیره شد");
+      // If images selected, upload to media endpoint next
+      if (imageFiles.length > 0) {
+        const mediaUrl = `https://api.milicode.ir/api/Branch/${branchIdParam}/media`;
+        const formData = new FormData();
+        imageFiles.forEach((file) => {
+          formData.append("file", file);
+        });
+        try {
+          await axios.put(mediaUrl, formData, {
+            timeout: 20000,
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          setMessage(
+            `امکانات ذخیره شد و ${imageFiles.length} تصویر با موفقیت بارگذاری شد`
+          );
+        } catch (err: any) {
+          if (err.response) {
+            setMediaError(
+              `خطا در بارگذاری تصویر (media): ${err.response.status}`
+            );
+          } else if (err.request) {
+            setMediaError("خطا در بارگذاری تصویر (media): سرور پاسخگو نیست");
+          } else {
+            setMediaError(`خطا در بارگذاری تصویر (media): ${err.message}`);
+          }
+          setMessage("امکانات ذخیره شد، اما بارگذاری تصویر(ها) ناموفق بود");
+        }
+      } else {
+        setMessage("امکانات با موفقیت ذخیره شد");
+      }
     } catch (err: any) {
       if (err.response) {
-        setError(`خطای سرور: ${err.response.status}`);
+        setFacilitiesError(
+          `خطا در ذخیره امکانات (facilities): ${err.response.status}`
+        );
       } else if (err.request) {
-        setError("خطای شبکه: سرور پاسخگو نیست");
+        setFacilitiesError(
+          "خطا در ذخیره امکانات (facilities): سرور پاسخگو نیست"
+        );
       } else {
-        setError(`خطا: ${err.message}`);
+        setFacilitiesError(`خطا در ذخیره امکانات (facilities): ${err.message}`);
       }
     } finally {
       setSubmitting(false);
@@ -83,19 +124,24 @@ const CompleteInformation = () => {
             شناسه باشگاه: <span className="font-mono">{branchIdParam}</span>
           </div>
 
-          {error && (
+          {facilitiesError && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded p-2">
-              {error}
+              {facilitiesError}
             </div>
           )}
-          {success && (
+          {mediaError && (
+            <div className="bg-orange-50 border border-orange-200 text-orange-700 text-sm rounded p-2">
+              {mediaError}
+            </div>
+          )}
+          {message && (
             <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded p-2">
-              {success}
+              {message}
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -105,7 +151,7 @@ const CompleteInformation = () => {
               کافه
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -115,7 +161,7 @@ const CompleteInformation = () => {
               سرویس بهداشتی
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -125,7 +171,7 @@ const CompleteInformation = () => {
               دوش
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -135,7 +181,7 @@ const CompleteInformation = () => {
               استخر
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -145,7 +191,7 @@ const CompleteInformation = () => {
               جکوزی
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -155,7 +201,7 @@ const CompleteInformation = () => {
               حوضچه آب سرد
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -165,7 +211,7 @@ const CompleteInformation = () => {
               خشکشویی
             </label>
 
-            <label className="flex items-center gap-2 text-sm text-gray-800">
+            <label className="flex items-center gap-2 text-sm text-gray-800 mb-2">
               <input
                 type="checkbox"
                 className="h-4 w-4"
@@ -186,21 +232,67 @@ const CompleteInformation = () => {
             </label>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition text-sm"
+          {/* Image upload section */}
+          <div className="space-y-2 border-t pt-4">
+            <div className="text-gray-800 font-semibold mb-5">آپلود تصویر</div>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => {
+                const files = e.target.files ? Array.from(e.target.files) : [];
+                setImageFiles(files);
+              }}
+              className="cursor-pointer block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
               disabled={submitting}
-            >
-              بازگشت
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-sm disabled:opacity-60"
-              disabled={submitting || !branchIdParam}
-            >
-              {submitting ? "در حال ذخیره..." : "ثبت امکانات"}
-            </button>
+            />
+            {imageFiles.length > 0 && (
+              <ul className="text-xs text-gray-600 space-y-1">
+                {imageFiles.map((file, index) => (
+                  <li
+                    key={`${file.name}-${index}`}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="!text-red-600 hover:underline ml-2"
+                    >
+                      حذف
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="text-xs text-gray-600 text-right">
+              توضیحات تصویر: سایز تصویر باید بیشتر از 1000x1000 باشد. مثلا
+            </p>
+          </div>
+
+          <div className="flex gap-2 pt-5">
+            {submitting ? (
+              <div className="flex items-center justify-center">
+                <LoadingComponent />
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="!bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition text-sm"
+                  disabled={submitting}
+                >
+                  بازگشت
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="!bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-sm disabled:opacity-60"
+                  disabled={submitting || !branchIdParam}
+                >
+                  {submitting ? "در حال ذخیره..." : "تأیید و ثبت"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
