@@ -131,7 +131,7 @@ const Location = () => {
 
       // ارسال درخواست
       const response = await axios.post(
-        "http://api.milicode.ir/api/Gym",
+        "https://api.milicode.ir/api/Gym",
         payload,
         {
           headers: {
